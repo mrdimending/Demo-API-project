@@ -1,6 +1,5 @@
 package com.jumpee.commerce.service;
 
-import javax.persistence.Id;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;

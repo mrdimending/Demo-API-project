@@ -79,6 +79,16 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler
 		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 		
 	}
+	@ExceptionHandler(ProductNotFoundException.class)
+	public ResponseEntity<ErrorHandler> handleProductNotFoundException(ProductNotFoundException exception, WebRequest webRequest)
+	{
+		ErrorHandler error = new ErrorHandler();
+		error.setCode(404);
+		error.setMessage("No product matched your search");
+		error.setError("Not Found");
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		
+	}
 	@ExceptionHandler(AuthHandlerException.class)
 	public ResponseEntity<ErrorHandler> handleAuthHandlerException(AuthHandlerException exception, WebRequest webRequest)
 	{
