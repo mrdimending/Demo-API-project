@@ -7,12 +7,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.jumpee.commerce.repository.RoleRepository;
+import com.jumpee.commerce.repository.TransactionRepository;
 import com.jumpee.commerce.repository.UserRepository;
+import com.jumpee.commerce.utils.DateAndTime;
 import com.jumpee.commerce.exception.AuthHandlerException;
 import com.jumpee.commerce.exception.NotFoundHandler;
 import com.jumpee.commerce.mail.MailService;
 import com.jumpee.commerce.model.Password;
 import com.jumpee.commerce.model.Role;
+import com.jumpee.commerce.model.Transaction;
 import com.jumpee.commerce.model.User;
 @Service
 public class UserService 
@@ -21,6 +24,8 @@ public class UserService
 	private UserRepository userRepository;
 	@Autowired
 	private RoleRepository roleRepository;
+	@Autowired
+	private TransactionRepository transactionRepository;
 	@Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 	@Autowired
@@ -107,11 +112,24 @@ public class UserService
 		{
 			if (pass.getNewPassword().equals(pass.getConfirmPassword())) 
 			{
+				Transaction record = new Transaction();
+				DateAndTime timestamp = new DateAndTime();
+				
 				String newPass = bCryptPasswordEncoder.encode(pass.getNewPassword());
 				userId.setPassword(newPass);
+				
+				record.setCategory("Account");
+				record.setActivity("Change password");
+				record.setAtDateAndTime(timestamp.getTimestamp());
+				record.setStatus("Success");
+				record.setUser(userId);
+				
+				transactionRepository.save(record);
 				userRepository.save(userId);
+				
+				return "Your password has been changed successfully";
 			}
-			return "Password and Confirm password not match";
+			return "Password and Confirm password does not match";
 		}
 		return "Old password is incorrect";
 	}

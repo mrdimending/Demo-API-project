@@ -5,7 +5,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +37,7 @@ public class ProductController
 		{	
 			List<Product> list = productService.getRandomProduct();
 			
-			return new ResponseEntity<List<Product>>(list, new HttpHeaders(), HttpStatus.OK); 
+			return new ResponseEntity<List<Product>>(list, new HttpHeaders(), HttpStatus.FOUND); 
 		}
 		else if(!authService.findAuthz(token))
 		{
@@ -48,14 +47,18 @@ public class ProductController
 		{
 			List<Product> list = productService.getAllProduct(page, size, orderBy, sortBy);
  
-			return new ResponseEntity<List<Product>>(list, new HttpHeaders(), HttpStatus.OK); 
+			return new ResponseEntity<List<Product>>(list, new HttpHeaders(), HttpStatus.FOUND); 
 		}
     }
 	@GetMapping("/search")
-    public ResponseEntity<List<Product>> getProduct(@RequestParam String search)
+    public ResponseEntity<List<Product>> getProduct(@RequestParam String search, @RequestParam(defaultValue = "guest") String token)
     {
+		if(!authService.findAuthz(token) || token.equals("guest"))
+		{
+			throw new AccessDeniedException();
+		}
 		List<Product> list = productService.productSearch(search);
 		
-		return new ResponseEntity<List<Product>>(list, new HttpHeaders(), HttpStatus.OK); 
+		return new ResponseEntity<List<Product>>(list, new HttpHeaders(), HttpStatus.FOUND); 
     }
 }

@@ -7,14 +7,12 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.jumpee.commerce.model.Product;
 
-public interface ProductRepository  extends PagingAndSortingRepository<Product, Integer>
+public interface ProductRepository extends PagingAndSortingRepository<Product, Integer>
 {
-
+	List<Product> findById(int id);
 	List<Product> findByManufacturerContainingIgnoreCase(String search);
 	List<Product> findByModelContainingIgnoreCase(String search);	
 	List<Product> findByPrice(BigDecimal search);
 	List<Product> findByCpuContainingIgnoreCase(String search);
-	List<Product> findByGpuContainingIgnoreCase(String search);
-	
-	
+	List<Product> findByGpuContainingIgnoreCase(String search);	
 }

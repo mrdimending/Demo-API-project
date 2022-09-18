@@ -67,6 +67,12 @@ public class User
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
 	private Collection<Wallet> wallet;
 	
+	@JsonView(View.Base.class)
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "user_id", referencedColumnName = "id")
+	private List<Cart> cart;
+	
+	
 	private boolean active = false;
 
 	public int getId() 
@@ -160,6 +166,14 @@ public class User
 
 	public void setUserDetails(List<Details> userDetails) {
 		this.userDetails = userDetails;
+	}
+
+	public List<Cart> getCart() {
+		return cart;
+	}
+
+	public void setCart(List<Cart> cart) {
+		this.cart = cart;
 	}
 
 	public User() {}

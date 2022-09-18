@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.jumpee.commerce.view.View;
 
 @Entity
-@Table(name = "user_details")
+@Table(name = "details")
 public class Details {
 	@Id
 	@GeneratedValue(strategy =  GenerationType.IDENTITY)

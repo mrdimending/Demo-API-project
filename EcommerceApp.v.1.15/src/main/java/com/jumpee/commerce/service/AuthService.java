@@ -7,11 +7,16 @@ import org.springframework.stereotype.Service;
 
 import com.jumpee.commerce.exception.AccessDeniedException;
 import com.jumpee.commerce.exception.AuthCheckerHandler;
+import com.jumpee.commerce.exception.ItemNotFoundException;
 import com.jumpee.commerce.exception.TokenHandlerException;
 import com.jumpee.commerce.model.Auth;
+import com.jumpee.commerce.model.Transaction;
 import com.jumpee.commerce.model.User;
 import com.jumpee.commerce.repository.AuthRepository;
+import com.jumpee.commerce.repository.SingleProductRepository;
+import com.jumpee.commerce.repository.TransactionRepository;
 import com.jumpee.commerce.repository.UserRepository;
+import com.jumpee.commerce.utils.DateAndTime;
 
 @Service
 public class AuthService 
@@ -20,12 +25,26 @@ public class AuthService
 	private AuthRepository authRepository;
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private TransactionRepository transactionRepository;
+	
+	Transaction record = new Transaction();
+	DateAndTime timestamp = new DateAndTime();
+	
 	public Auth findById(int id) 
 	{
+		if (authRepository.findById(id) == null )
+		{
+			throw new AccessDeniedException();
+		}
 		return authRepository.findById(id);
 	}
 	public Auth findByToken(Auth token)
 	{
+		if (authRepository.findByToken(token) == null )
+		{
+			throw new AccessDeniedException();
+		}
 		return authRepository.findByToken(token);
 	}
 	
@@ -55,6 +74,7 @@ public class AuthService
 	public Auth updateAuth(@Valid User checkUser, String code) 
 	{
 		User accountExist = userRepository.findByEmail(checkUser.getEmail());
+		
 		if(authRepository.findByUser(accountExist) == null)
 		{
 			throw new AuthCheckerHandler();
@@ -63,7 +83,13 @@ public class AuthService
 		tokenExists.setAuthz(code);
 		tokenExists.setUser(accountExist);
 		
-		System.out.print("Token :"+accountExist);
+		record.setCategory("Account");
+		record.setActivity("Logged in");
+		record.setStatus("Success");
+		record.setAtDateAndTime(timestamp.getTimestamp());
+		record.setUser(tokenExists.getUser());
+		
+		transactionRepository.save(record);
 		return authRepository.save(tokenExists);
 		
 	}
@@ -98,8 +124,21 @@ public class AuthService
 	}
 	public String accountLogout(User userId) 
 	{
+		if (authRepository.findByUser(userId) == null) 
+		{
+			throw new AccessDeniedException();
+		}
+		
 		Auth tokenExists = authRepository.findByUser(userId);
 		tokenExists.setAuthz(null);
+		
+		record.setCategory("Account");
+		record.setActivity("Logged out");
+		record.setStatus("Success");
+		record.setAtDateAndTime(timestamp.getTimestamp());
+		record.setUser(tokenExists.getUser());
+		
+		transactionRepository.save(record);
 		authRepository.save(tokenExists);
 		return "Successfully Logged out..";
 	}

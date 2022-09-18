@@ -55,7 +55,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler
 	public ResponseEntity<ErrorHandler> handleAccessDeniedException (AccessDeniedException exception, WebRequest webRequest)
 	{
 		error.setCode(401);
-		error.setMessage("Access Denied!");
+		error.setMessage("Access Denied! You need to create an account to access this feat");
 		error.setError("Unauthorized");
 		return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
 		
@@ -75,6 +75,16 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler
 		ErrorHandler error = new ErrorHandler();
 		error.setCode(404);
 		error.setMessage("Please input valid value");
+		error.setError("Not Found");
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		
+	}
+	@ExceptionHandler(ItemNotFoundException.class)
+	public ResponseEntity<ErrorHandler> handleItemNotFoundException(ItemNotFoundException exception, WebRequest webRequest)
+	{
+		ErrorHandler error = new ErrorHandler();
+		error.setCode(404);
+		error.setMessage("No product were found matching your selection..");
 		error.setError("Not Found");
 		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 		
@@ -99,10 +109,19 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler
 		
 	}
 	@ExceptionHandler(NullHandlerException.class)
-	public ResponseEntity<ErrorHandler> NullHandlerException(NullHandlerException exception, WebRequest webRequest)
+	public ResponseEntity<ErrorHandler> handleNullHandlerException(NullHandlerException exception, WebRequest webRequest)
 	{
 		error.setCode(404);
 		error.setMessage("Please input valid value");
+		error.setError("Not Found");
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		
+	}
+	@ExceptionHandler(TransactionNotFoundException.class)
+	public ResponseEntity<ErrorHandler> handleTransactionNotFoundException(TransactionNotFoundException exception, WebRequest webRequest)
+	{
+		error.setCode(404);
+		error.setMessage("Transaction Empty");
 		error.setError("Not Found");
 		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 		
@@ -112,6 +131,15 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler
 	{
 		error.setCode(409);
 		error.setMessage("Email already taken!");
+		error.setError("Conflict");
+		return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+		
+	}
+	@ExceptionHandler(StockHandlerException.class)
+	public ResponseEntity<ErrorHandler> handleStockHandlerException(StockHandlerException exception, WebRequest webRequest)
+	{
+		error.setCode(409);
+		error.setMessage("Out of stock");
 		error.setError("Conflict");
 		return new ResponseEntity<>(error, HttpStatus.CONFLICT);
 		

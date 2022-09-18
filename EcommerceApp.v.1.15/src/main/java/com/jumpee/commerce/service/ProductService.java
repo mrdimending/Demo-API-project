@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,16 +13,38 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+
+import com.jumpee.commerce.exception.ItemNotFoundException;
 import com.jumpee.commerce.exception.ProductNotFoundException;
+import com.jumpee.commerce.model.AddToCart;
 import com.jumpee.commerce.model.Product;
 import com.jumpee.commerce.repository.ProductRepository;
+import com.jumpee.commerce.repository.SingleProductRepository;
 
 @Service
 public class ProductService 
 {
 	@Autowired
 	private ProductRepository productRepository;
+	@Autowired
+	private SingleProductRepository singleRepository;
 	
+	public List<Product> getProductById(int id)
+	{
+		if (productRepository.findById(id) == null )
+		{
+			throw new ItemNotFoundException();
+		}
+		return productRepository.findById(id);
+	}
+	public Product getItemById(@Valid AddToCart item) 
+	{
+		if (singleRepository.findById(item.getProduct_id()) == null )
+		{
+			throw new ItemNotFoundException();
+		}
+		return singleRepository.findById(item.getProduct_id());
+	}
 	public List<Product> getAllProduct(int pageNo, int pageSize, String orderBy, String sortBy)
     {
 		Direction direction = Direction.valueOf(orderBy.toUpperCase());
@@ -69,8 +93,6 @@ public class ProductService
 		}
 		else if(!cpuExist)
 		{
-//			cpu.forEach((p) ->
-//			System.out.println(p));
 	        return cpu;
 		}
 		else if(!gpuExist)
@@ -82,4 +104,5 @@ public class ProductService
 			throw new ProductNotFoundException();
 		}
 	}
+	
 }

@@ -9,57 +9,83 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.hibernate.validator.constraints.Range;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.jumpee.commerce.view.View;
 
 @Entity
-@Table(name = "wallet")
-public class Wallet 
+@Table(name = "cart")
+public class Cart 
 {
 	@Id
 	@GeneratedValue(strategy =  GenerationType.IDENTITY)
 	private int id;
+
+	@JsonView(View.Base.class)
+	@ManyToOne
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
+	private Product product;
 	
 	@JsonView(View.Base.class)
-	@Range(min = 100, message = "minimum deposit must be 100")
+	private int qty;
+
+	@JsonView(View.Base.class)
 	private BigDecimal amount;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
 	private User user;
 	
-	public Wallet()
+	public int getQty() {
+		return qty;
+	}
+	public void setQty(int qty) {
+		this.qty = qty;
+	}
+	public Cart()
 	{}
-	public Wallet(int id, BigDecimal amount, User user) {
+	public Cart(int id, User user, Product product, int qty) {
 		super();
 		this.id = id;
-		this.amount = amount;
 		this.user = user;
+		this.product = product;
+		this.qty = qty;
 	}
 
 	public int getId() {
 		return id;
 	}
 
+
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	public BigDecimal getAmount() {
-		return amount;
-	}
-
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
-	}
 
 	public User getUser() {
 		return user;
 	}
 
+
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+
+	public Product getProduct() {
+		return product;
+	}
+
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
+
 }

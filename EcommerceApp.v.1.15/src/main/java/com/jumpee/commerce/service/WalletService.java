@@ -6,15 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jumpee.commerce.exception.NullHandlerException;
+import com.jumpee.commerce.model.Transaction;
 import com.jumpee.commerce.model.User;
 import com.jumpee.commerce.model.Wallet;
+import com.jumpee.commerce.repository.TransactionRepository;
 import com.jumpee.commerce.repository.WalletRepository;
+import com.jumpee.commerce.utils.DateAndTime;
 
 @Service
 public class WalletService 
 {
 	@Autowired
 	private WalletRepository walletRepository;
+	@Autowired
+	private TransactionRepository transactionRepository;
 	
 	public Wallet findById(int id)
 	{
@@ -36,39 +41,41 @@ public class WalletService
 
 	public String deposit(User userId, Wallet wallet) 
 	{
+		Transaction record = new Transaction();
+		DateAndTime timestamp = new DateAndTime();
 		Wallet newWallet = new Wallet();
-		System.out.println("TOKEN =" +newWallet);
-		System.out.print("TOKEN =" +wallet);
 		if (walletRepository.findByUser(userId) == null) 
 		{
-			newWallet.setBalance(wallet.getBalance());
+			newWallet.setAmount(wallet.getAmount());
 			newWallet.setUser(userId);
 			walletRepository.save(newWallet);
+			
+			record.setCategory("Wallet");
+			record.setActivity("Deposit an amount of "+wallet.getAmount());
+			record.setStatus("Success");
+			record.setAtDateAndTime(timestamp.getTimestamp());
+			record.setUser(userId);
+			transactionRepository.save(record);
 			return "Successfully deposited";
 		}
 		
 		Wallet balUpdate = walletRepository.findByUser(userId);
-		BigDecimal dbBal = balUpdate.getBalance();
-		BigDecimal userBal = wallet.getBalance();
+		BigDecimal dbBal = balUpdate.getAmount();
+		BigDecimal userBal = wallet.getAmount();
 		BigDecimal newBal = dbBal.add(userBal);
-		balUpdate.setBalance(newBal);
+		balUpdate.setAmount(newBal);
+		
+		record.setCategory("Wallet");
+		record.setActivity("Deposit an amount of "+userBal);
+		record.setStatus("Success");
+		record.setAtDateAndTime(timestamp.getTimestamp());
+		record.setUser(userId);
+		
+		transactionRepository.save(record);
 		walletRepository.save(balUpdate);
 		return "Balance successfully updated";
 		
+		
+		
 	}
-//	public String checkBal(User userId, Wallet wallet) 
-//	{
-//		Wallet newWallet = new Wallet();
-//		if (walletRepository.findByUser(userId) == null) 
-//		{
-//			newWallet.setBalance(wallet.getBalance());
-//			newWallet.setUser(userId);
-//			walletRepository.save(newWallet);
-//			return "Successfully deposited";
-//		}
-//		Wallet balUpdate = walletRepository.findByUser(userId);
-//		balUpdate.setBalance(wallet.getBalance());
-//		return "Balance successfully updated";
-//		
-//	}
 }

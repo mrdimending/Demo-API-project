@@ -67,9 +67,9 @@ public class AccountController
 	}
 	@GetMapping("/myaccount")
 	@JsonView(View.Base.class)
-	public ResponseEntity<?> myAccount(@RequestParam String email, @RequestParam String token) throws Exception
+	public ResponseEntity<?> myAccount(@RequestParam String email, @RequestParam(defaultValue = "guest") String token) throws Exception
 	{
-		if (!userService.findUser(email) || !authService.findAuthz(token))
+		if (token.equals("guest") || !userService.findUser(email) || !authService.findAuthz(token))
 		{
 			throw new AccessDeniedException();
 		}
@@ -79,9 +79,9 @@ public class AccountController
 	}
 	@PostMapping("/myaccount/add-address")
 	@JsonView(View.Base.class)
-	public ResponseEntity<?> addAddress(@RequestParam String email, @RequestParam String token, @Valid @RequestBody Details details)
+	public ResponseEntity<?> addAddress(@RequestParam String email, @RequestParam(defaultValue = "guest") String token, @Valid @RequestBody Details details)
 	{
-		if(!authService.findAuthz(token) || !userService.findUser(email))
+		if(token.equals("guest") || !authService.findAuthz(token) || !userService.findUser(email))
 		{
 			throw new AccessDeniedException();
 		}
@@ -90,11 +90,11 @@ public class AccountController
 		return ResponseEntity.ok().body(user);
 	}
 	@DeleteMapping("/myaccount/delete-address/{id}")
-	public ResponseEntity<?> addrDelete(@PathVariable("id") int id, @RequestParam String token)
+	public ResponseEntity<?> addrDelete(@PathVariable("id") int id, @RequestParam(defaultValue = "guest") String token)
 	{
 		
 		int addrId = id;
-		if(!authService.findAuthz(token) || detailsService.findById(addrId) == null)
+		if(token.equals("guest") || !authService.findAuthz(token) || detailsService.findById(addrId) == null)
 		{
 			throw new AccessDeniedException();
 		}
@@ -111,10 +111,10 @@ public class AccountController
 		}
 	}
 	@PutMapping("/myaccount/update-address/{id}")
-	public ResponseEntity<?> addrUpdate(@PathVariable("id") int id, @RequestParam String token, @Valid @RequestBody Details details)
+	public ResponseEntity<?> addrUpdate(@PathVariable("id") int id, @RequestParam(defaultValue = "guest") String token, @Valid @RequestBody Details details)
 	{
 		int addrId = id;
-		if(!authService.findAuthz(token) || detailsService.findById(addrId) == null)
+		if(token.equals("guest") || !authService.findAuthz(token) || detailsService.findById(addrId) == null)
 		{
 			throw new AccessDeniedException();
 		}
@@ -130,29 +130,11 @@ public class AccountController
 			throw new AccessDeniedException();
 		}
 	}
-	@PutMapping("/myaccount/logout")
-	public ResponseEntity<?> logOut(@RequestParam String email, @RequestParam String token)
-	{
-		if(!authService.findAuthz(token) || !userService.findUser(email))
-		{
-			throw new AccessDeniedException();
-		}
-		else
-		{
-			User userId = userService.findByEmail(email);
-			User tokenUserId = authService.findUserByToken(token);
-			if(userId.equals(tokenUserId))
-			{
-				message = authService.accountLogout(userId);
-				return ResponseEntity.ok().body(new Message(message));
-			}
-			throw new AccessDeniedException();
-		}
-	}
+	
 	@PostMapping("/myaccount/deposit")
-	public ResponseEntity<?> openWallet(@RequestParam String email, @RequestParam String token, @RequestBody Wallet wallet)
+	public ResponseEntity<?> openWallet(@RequestParam String email, @RequestParam(defaultValue = "guest") String token, @RequestBody Wallet wallet)
 	{
-		if(!authService.findAuthz(token) || !userService.findUser(email))
+		if(token.equals("guest") || !authService.findAuthz(token) || !userService.findUser(email))
 		{
 			throw new AccessDeniedException();
 		}
@@ -169,9 +151,9 @@ public class AccountController
 		}
 	}
 	@PutMapping("/myaccount/new-password")
-	public ResponseEntity<?> changePassword(@RequestParam String email, @RequestParam String token, @RequestBody Password pass)
+	public ResponseEntity<?> changePassword(@RequestParam String email, @RequestParam(defaultValue = "guest") String token, @RequestBody Password pass)
 	{
-		if(!authService.findAuthz(token) || !userService.findUser(email))
+		if(token.equals("guest") || !authService.findAuthz(token) || !userService.findUser(email))
 		{
 			throw new AccessDeniedException();
 		}
@@ -182,6 +164,25 @@ public class AccountController
 			if(userId.equals(tokenUserId))
 			{
 				message = userService.newPassword(userId, pass);
+				return ResponseEntity.ok().body(new Message(message));
+			}
+			throw new AccessDeniedException();
+		}
+	}
+	@PutMapping("/myaccount/logout")
+	public ResponseEntity<?> logOut(@RequestParam String email, @RequestParam(defaultValue = "guest") String token)
+	{
+		if(token.equals("guest") || !authService.findAuthz(token) || !userService.findUser(email))
+		{
+			throw new AccessDeniedException();
+		}
+		else
+		{
+			User userId = userService.findByEmail(email);
+			User tokenUserId = authService.findUserByToken(token);
+			if(userId.equals(tokenUserId))
+			{
+				message = authService.accountLogout(userId);
 				return ResponseEntity.ok().body(new Message(message));
 			}
 			throw new AccessDeniedException();

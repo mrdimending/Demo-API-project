@@ -1,12 +1,14 @@
 package com.jumpee.commerce.model;
 
 import java.math.BigDecimal;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonView;
+import com.jumpee.commerce.view.View;
 
 @Entity
 @Table(name ="product")
@@ -15,16 +17,37 @@ public class Product
 	@Id
 	@GeneratedValue(strategy =  GenerationType.IDENTITY)
 	private int id;
+	
+	@JsonView(View.Base.class)
 	private String manufacturer;
+	
+	@JsonView(View.Base.class)
 	private String model;
+	
+	@JsonView(View.Base.class)
 	private float screenSize;
+	
+	@JsonView(View.Base.class)
 	private String screen;
+	
+	@JsonView(View.Base.class)
 	private String cpu;
+	
+	@JsonView(View.Base.class)
 	private String ram;
+	
+	@JsonView(View.Base.class)
 	private String storage;
+	
+	@JsonView(View.Base.class)
 	private String gpu;
+	
+	@JsonView(View.Base.class)
 	private String operatingSystem;
+	
 	private int qty;
+	
+	@JsonView(View.Base.class)
 	private BigDecimal price;
 	
 	Product(){}
