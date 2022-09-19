@@ -6,13 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.jumpee.commerce.repository.AuthRepository;
 import com.jumpee.commerce.repository.RoleRepository;
 import com.jumpee.commerce.repository.TransactionRepository;
 import com.jumpee.commerce.repository.UserRepository;
 import com.jumpee.commerce.utils.DateAndTime;
+
+import net.bytebuddy.utility.RandomString;
+
 import com.jumpee.commerce.exception.AuthHandlerException;
 import com.jumpee.commerce.exception.NotFoundHandler;
 import com.jumpee.commerce.mail.MailService;
+import com.jumpee.commerce.model.Auth;
 import com.jumpee.commerce.model.Password;
 import com.jumpee.commerce.model.Role;
 import com.jumpee.commerce.model.Transaction;
@@ -25,11 +30,18 @@ public class UserService
 	@Autowired
 	private RoleRepository roleRepository;
 	@Autowired
+	private AuthRepository authRepository;
+	@Autowired
 	private TransactionRepository transactionRepository;
 	@Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 	@Autowired
 	private MailService mailService;
+	@Autowired
+	private AuthService authService;
+	
+	Transaction record = new Transaction();
+	DateAndTime timestamp = new DateAndTime();
 	
 	public User findById(int id)
 	{
@@ -55,7 +67,7 @@ public class UserService
 				+ "	</div>\r\n"
 				+ "</div>";
 		newUser.setPassword(encodedPassword);
-		this.mailService.sendEmail(newUser.getEmail(), subject, messageBody);
+		mailService.sendEmail(newUser.getEmail(), subject, messageBody);
 		return userRepository.save(newUser);
 	}
 
@@ -101,8 +113,7 @@ public class UserService
 
 	public User getDetails(String email) 
 	{
-		User accountExist = userRepository.findByEmail(email);
-		return accountExist;
+		return userRepository.findByEmail(email);
 	}
 
 	public String newPassword(User userId, Password pass) 
@@ -112,14 +123,11 @@ public class UserService
 		{
 			if (pass.getNewPassword().equals(pass.getConfirmPassword())) 
 			{
-				Transaction record = new Transaction();
-				DateAndTime timestamp = new DateAndTime();
-				
 				String newPass = bCryptPasswordEncoder.encode(pass.getNewPassword());
 				userId.setPassword(newPass);
 				
 				record.setCategory("Account");
-				record.setActivity("Change password");
+				record.setActivity("Password successfully updated");
 				record.setAtDateAndTime(timestamp.getTimestamp());
 				record.setStatus("Success");
 				record.setUser(userId);
@@ -132,6 +140,62 @@ public class UserService
 			return "Password and Confirm password does not match";
 		}
 		return "Old password is incorrect";
+	}
+
+	public String reset(String email) 
+	{
+		User user = userRepository.findByEmail(email);
+		Auth authId = authRepository.findByUser(user);
+		String resetToken = RandomString.make(5);
+		
+		String subject = "Code Verification";
+		String messageBody = "<div class=\"mail-header\" style=\"text-align: center; \">\r\n"
+				+ "	<h2 style=\"letter-spacing: 1em\">THANKS FOR SIGNING UP !</h2>\r\n"
+				+ "	<p>You're almost ready to get started. Please copy the code below and paste it to verify your account!</p>\r\n"
+				+ "	<div class=\"mail-code\" style=\"background-color: #f2f2f2; margin:auto;width: 50%;border: 3px solid #black;padding: 5px; letter-spacing: 1em\">\r\n"
+				+ "		<h2>"+resetToken+"</h2>\r\n"
+				+ "	</div>\r\n"
+				+ "</div>";
+		
+		mailService.sendEmail(user.getEmail(), subject, messageBody);
+		
+		authId.setToken(resetToken);
+		authRepository.save(authId);
+		
+		record.setCategory("Account");
+		record.setActivity("Request to reset password");
+		record.setAtDateAndTime(timestamp.getTimestamp());
+		record.setStatus("Success");
+		record.setUser(user);
+		
+		transactionRepository.save(record);
+		return resetToken;
+		
+	}
+	
+	public String newPass(User userId, Password pass) 
+	{
+		if (pass.getNewPassword().equals(pass.getConfirmPassword())) 
+		{
+			String newPass = bCryptPasswordEncoder.encode(pass.getNewPassword());
+			Auth authId = authRepository.findByUser(userId);
+			userId.setPassword(newPass);
+			
+			record.setCategory("Account");
+			record.setActivity("Password successfully updated");
+			record.setAtDateAndTime(timestamp.getTimestamp());
+			record.setStatus("Success");
+			record.setUser(userId);
+			
+			authId.setToken(null);
+			
+			authRepository.save(authId);
+			transactionRepository.save(record);
+			userRepository.save(userId);
+			
+			return "Your password has been changed successfully";
+		}
+		return "Password and Confirm password does not match";
 	}
 
 }

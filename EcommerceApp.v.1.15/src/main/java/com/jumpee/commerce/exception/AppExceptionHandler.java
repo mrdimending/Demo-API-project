@@ -51,6 +51,15 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler
 		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 		
 	}
+	@ExceptionHandler(InsufficientBalanceException.class)
+	public ResponseEntity<ErrorHandler> handleInsufficientBalanceException(InsufficientBalanceException exception, WebRequest webRequest)
+	{
+		error.setCode(400);
+		error.setMessage("You do not have enough balance in your account to make this transaction");
+		error.setError("Bad Request");
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+		
+	}
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ErrorHandler> handleAccessDeniedException (AccessDeniedException exception, WebRequest webRequest)
 	{
@@ -65,6 +74,15 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler
 	{
 		error.setCode(404);
 		error.setMessage("Email or Password is incorrect!");
+		error.setError("Not Found");
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+		
+	}
+	@ExceptionHandler(ShippingNotFound.class)
+	public ResponseEntity<ErrorHandler> handleShippingNotFound(ShippingNotFound exception, WebRequest webRequest)
+	{
+		error.setCode(404);
+		error.setMessage("Please add shipping details");
 		error.setError("Not Found");
 		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 		

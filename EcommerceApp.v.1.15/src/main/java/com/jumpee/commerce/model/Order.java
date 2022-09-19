@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.jumpee.commerce.view.View;
 
 @Entity
-@Table(name="checkout")
+@Table(name="orders")
 public class Order 
 {
 	@Id

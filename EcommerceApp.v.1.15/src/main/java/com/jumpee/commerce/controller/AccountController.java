@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.jumpee.commerce.exception.AccessDeniedException;
 import com.jumpee.commerce.exception.NullHandlerException;
+import com.jumpee.commerce.exception.TokenHandlerException;
+import com.jumpee.commerce.model.Auth;
 import com.jumpee.commerce.model.Details;
 import com.jumpee.commerce.model.Password;
 import com.jumpee.commerce.model.User;
@@ -42,6 +44,8 @@ public class AccountController
 	private DetailsService detailsService;
 	@Autowired
 	private WalletService walletService;
+	@Autowired
+	private AuthRepository authRepository;
 	@Autowired
 	private JwtUtils jwtUtils;
 	
@@ -187,5 +191,27 @@ public class AccountController
 			}
 			throw new AccessDeniedException();
 		}
+	}
+	@PutMapping("/reset-password")
+	public ResponseEntity<?> reset(@Valid @RequestBody User user)
+	{
+		if (userRepository.findByEmail(user.getEmail()) == null ) 
+		{
+			throw new NullHandlerException();
+		}
+		String resetToken = userService.reset(user.getEmail());
+		message = "Please check your email for reset token";
+		return ResponseEntity.ok().body(new AuthResponse(resetToken,message));
+	} 
+	@PutMapping("/new-password")
+	public ResponseEntity<?> updatePassword(@Valid @RequestBody Password pass)
+	{
+		if (authRepository.findByToken(pass.getToken()) == null) 
+		{
+			throw new TokenHandlerException();
+		}
+		Auth user = authRepository.findByToken(pass.getToken());
+		message = userService.newPass(user.getUser(), pass);
+		return ResponseEntity.ok().body(new Message(message));
 	}
 }

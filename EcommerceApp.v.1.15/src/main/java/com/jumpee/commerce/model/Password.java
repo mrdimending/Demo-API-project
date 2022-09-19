@@ -8,13 +8,16 @@ public class Password
 	@Size(min = 8, message = "Password must be at least 8 characters")
 	private String newPassword;
 	private String confirmPassword;
+	private String token;
+	
 	
 	public Password() {};
-	public Password(String oldPassword, String newPassword, String confirmPassword) {
+	public Password(String oldPassword, String newPassword, String confirmPassword, String token) {
 		super();
 		this.oldPassword = oldPassword;
 		this.newPassword = newPassword;
 		this.confirmPassword = confirmPassword;
+		this.token = token;
 	}
 	public String getOldPassword() {
 		return oldPassword;
@@ -33,6 +36,12 @@ public class Password
 	}
 	public void setConfirmPassword(String confirmPassword) {
 		this.confirmPassword = confirmPassword;
+	}
+	public String getToken() {
+		return token;
+	}
+	public void setToken(String token) {
+		this.token = token;
 	}
 	
 	

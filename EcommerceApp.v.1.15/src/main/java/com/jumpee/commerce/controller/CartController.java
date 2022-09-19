@@ -36,7 +36,7 @@ public class CartController
 	@Autowired
 	private ProductService productService;
 	
-	@PostMapping("/add-to-cart")
+	@PostMapping("/cart/add")
 	public ResponseEntity<?> addToCart(@RequestParam(defaultValue = "guest") String token, @Valid @RequestBody AddToCart item)
 	{
 		if(!authService.findAuthz(token) || token.equals("guest"))
@@ -51,7 +51,7 @@ public class CartController
 		return ResponseEntity.ok().body(new Message(message));
 	}
 	
-	@GetMapping("/view-cart")
+	@GetMapping("/cart/view")
 	@JsonView(View.Base.class)
 	public ResponseEntity<List<Cart>> viewCart(@RequestParam(defaultValue = "guest") String token)
 	{
@@ -66,11 +66,14 @@ public class CartController
 		
 	}
 	
-	@GetMapping("/multi-to-cart")
-	public ResponseEntity<List<Product>> update(@RequestBody List<Product> item) 
-	{
-
-		item.stream().forEach(c -> System.out.println(c.getId()));
-	    return new ResponseEntity<List<Product>>(item, HttpStatus.FOUND);
-	}
+//	@GetMapping("/cart/multi")
+//	public ResponseEntity<?> update(@RequestParam(defaultValue = "guest") String token, @RequestBody List<AddToCart> item) 
+//	{
+//		if(!authService.findAuthz(token) || token.equals("guest"))
+//		{
+//			throw new AccessDeniedException();
+//		}
+//		item.stream().forEach(c -> cartService.addBulkProducts(c.getProduct_id(), c.getQuantity(), token));
+//		return ResponseEntity.ok().body(item);
+//	}
 }

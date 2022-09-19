@@ -27,7 +27,7 @@ public class OrderController
 	private OrderService orderService;
 	@Autowired
 	private AuthService authService;
-	
+
 	@GetMapping("/checkout")
 	@JsonView(View.Base.class)
 	public ResponseEntity<Order> checkOut(@RequestParam(defaultValue = "guest") String token)
@@ -40,18 +40,18 @@ public class OrderController
 		
 		return new ResponseEntity<Order>(order, new HttpHeaders(), HttpStatus.FOUND); 
 	}
-	
-	@PutMapping("/pre-checkout")
-	@JsonView(View.Base.class)
-	public ResponseEntity<Order> preCheckout(@RequestParam(defaultValue = "guest") String token, 
-												@Valid @RequestBody Details details)
-	{
-		if(!authService.findAuthz(token) || token.equals("guest"))
-		{
-			throw new AccessDeniedException();
-		}
-		Order order = orderService.viewOrder(token);
-		
-		return new ResponseEntity<Order>(order, new HttpHeaders(), HttpStatus.FOUND); 
-	}
+//	incomplete
+//	@PutMapping("/pre-checkout")
+//	@JsonView(View.Base.class)
+//	public ResponseEntity<Order> preCheckout(@RequestParam(defaultValue = "guest") String token, 
+//												@Valid @RequestBody Details details)
+//	{
+//		if(!authService.findAuthz(token) || token.equals("guest"))
+//		{
+//			throw new AccessDeniedException();
+//		}
+//		Order order = orderService.viewOrder(token);
+//		
+//		return new ResponseEntity<Order>(order, new HttpHeaders(), HttpStatus.FOUND); 
+//	}
 }
